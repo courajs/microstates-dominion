@@ -1,46 +1,40 @@
+import {html, render} from "lit-html";
 import {map} from "microstates";
 
 var body = document.body;
 
-export function render(state) {
-  body.innerHTML = App(state);
+function _render(state) {
+  render(App(state), document.body);
 }
 
+export {_render as render};
+
 function App(game) {
-  return `
+  return html`
 <h1>Dominion</h1>
 <h2>Supply</h2>
 <ul>
-  ${mash(game.supply, SupplyPile)}
+  ${map(game.supply, SupplyPile)}
 </ul>
 <h2>Hand</h2>
 <ul>
-  ${mash(game.player.hand, Card)}
+  ${map(game.player.hand, Card)}
 </ul>
 <h2>Discard</h2>
 <ul>
-  ${mash(game.player.discard, Card)}
+  ${map(game.player.discard, Card)}
 </ul>
+  <button @click=${()=>console.log('click')}>Hi</button>
 `;
 }
 
 function Card(c) {
-  return `<li>${c.def.name.state}</li>`;
+  return html`<li>${c.def.name.state}</li>`;
 }
 
 function SupplyPile(s) {
-  return `<li>${s.def.name.state} (${s.left.state})`;
+  return html`<li>${s.def.name.state} (${s.left.state})`;
 }
 
-function List(label, state, render)
-
-
-
-
-
-
-
-function mash(state, fn) {
-  return map(state, fn).join('');
-}
+// function List(label, state, render)
 
