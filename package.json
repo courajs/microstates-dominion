@@ -19,5 +19,8 @@
   "bugs": {
     "url": "https://github.com/courajs/microstates-dominion/issues"
   },
-  "homepage": "https://github.com/courajs/microstates-dominion#readme"
+  "homepage": "https://github.com/courajs/microstates-dominion#readme",
+  "dependencies": {
+    "microstates": "^0.10.1"
+  }
 }
