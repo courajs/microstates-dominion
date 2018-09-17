@@ -46,7 +46,11 @@ Game.prototype.draw = function(n = 1) {
   let card = r.player.deck[0];
   r = removeFrom(r.player.deck, card)
   r = r.player.hand.push(card)
-  return r
+  if (n > 1) {
+    return r.draw(n-1);
+  } else {
+    return r
+  }
 }
 Game.prototype.shuffle = function() {
   assert(this.player.deck.state.length === 0, "Only shuffle when you need to draw")
