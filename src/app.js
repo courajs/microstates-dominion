@@ -23,7 +23,6 @@ function App(game) {
 <ul>
   ${map(game.player.discard, Card)}
 </ul>
-  <button @click=${()=>console.log(game)}>Hi</button>
 `;
 }
 
