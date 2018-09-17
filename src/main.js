@@ -115,5 +115,6 @@ Object.assign(window, {
   copper, 
   silver,
   gold,
-  g
+  g,
+  r: start
 });

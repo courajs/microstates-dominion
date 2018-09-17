@@ -6,6 +6,7 @@ var current;
 export default function r(game) {
   current = game;
   render(App(game), document.body);
+  return game;
 }
 
 function App(game) {
