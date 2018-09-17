@@ -15,19 +15,37 @@ function App(game) {
 <ul>
   ${map(game.supply, SupplyPile)}
 </ul>
+<h2>Resources</h2>
+<div>Actions: ${game.player.resources.actions.state}</div>
+<div>Buys: ${game.player.resources.buys.state}</div>
+<div>Coins: ${game.player.resources.coins.state}</div>
 <h2>Hand</h2>
 <ul>
-  ${map(game.player.hand, Card)}
+  ${map(game.player.hand, PlayableCard)}
+</ul>
+<h2>In play</h2>
+<ul>
+  ${map(game.player.in_play, InertCard)}
 </ul>
 <h2>Discard</h2>
 <ul>
-  ${map(game.player.discard, Card)}
+  ${map(game.player.discard, InertCard)}
 </ul>
 `;
 }
 
-function Card(c) {
-  return html`<li>${c.def.name.state}</li>`;
+function PlayableCard(c) {
+  return html`
+    <li>
+      <button @click=${()=>r(current.play(c))}>Play</button>
+      ${c.def.name.state}
+    </li>`;
+}
+function InertCard(c) {
+  return html`
+    <li>
+      ${c.def.name.state}
+    </li>`;
 }
 
 function SupplyPile(s) {

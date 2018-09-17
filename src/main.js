@@ -6,6 +6,9 @@ function assert(v, msg) {
     throw new Error(msg);
   }
 }
+function removeFrom(arrayState, item) {
+  return arrayState.filter(i => i.state !== item.state);
+}
 
 
 function Game() {
@@ -20,6 +23,11 @@ Game.prototype.gain = function(pile) {
   return pile.decrement()
     .player.gain(pile.def);
 }
+Game.prototype.play = function(card) {
+  return removeFrom(this.player.hand, card)
+    .player.in_play.push(card)
+    .player.resources.coins.increment(card.def.value.state);
+}
 
 function SupplyPile() {
   this.def = CardDef;
@@ -30,6 +38,7 @@ SupplyPile.prototype.decrement = function() {
 }
 
 function Player() {
+  this.resources = Resources;
   this.hand = [Card];
   this.discard = [Card];
   this.deck = [Card];
@@ -37,6 +46,12 @@ function Player() {
 }
 Player.prototype.gain = function(def) {
   return this.discard.push(create(Card, {def}));
+}
+
+function Resources() {
+  this.actions = Number;
+  this.buys = Number;
+  this.coins = Number;
 }
 
 function CardDef() {
@@ -52,11 +67,11 @@ function Card() {
 Card.make = function(def) {
   return create(Card, {def});
 }
-
 var nextId = 1;
 Card.prototype.initialize = function(){
   return this.id.set(nextId++);
 }
+
 
 var copper = create(CardDef, {name: "Copper", value: 1, cost: 0});
 var silver = create(CardDef, {name: "Silver", value: 2, cost: 3});
