@@ -16,7 +16,11 @@ function Game() {
   this.supply = [SupplyPile];
 }
 Game.prototype.buy = function(pile) {
-  return this.gain(pile);
+  assert(this.player.resources.buys.state >= 1, "No buys available");
+  assert(this.player.resources.coins.state >= pile.def.cost.state, "Buy without enough coins");
+  return this.gain(pile)
+    .player.resources.buys.decrement()
+    .player.resources.coins.decrement(pile.def.cost.state);
 }
 Game.prototype.gain = function(pile) {
   assert(pile.left.state > 0, "Gaining from empty supply pile");
@@ -64,8 +68,16 @@ function Card() {
   this.def = CardDef;
   this.id = Number;
 }
-Card.make = function(def) {
-  return create(Card, {def});
+Card.make = function(def, n) {
+  if (n) {
+    var result = [];
+    for (var i = 0; i < n; i++) {
+      result.push(create(Card, {def}));
+    }
+    return result;
+  } else {
+    return create(Card, {def});
+  }
 }
 var nextId = 1;
 Card.prototype.initialize = function(){
@@ -78,8 +90,15 @@ var silver = create(CardDef, {name: "Silver", value: 2, cost: 3});
 var gold = create(CardDef, {name: "Gold", value: 3, cost: 6});
 
 var g = create(Game, {
-  player: {hand: [Card.make(copper), Card.make(copper), Card.make(silver)]},
-  supply: [{def: copper, left: 4}]
+  player: {
+    hand: [...Card.make(copper, 4), Card.make(silver)],
+    resources: {buys: 4},
+  },
+  supply: [
+    {def: copper, left: 60},
+    {def: silver, left: 40},
+    {def: gold, left: 30},
+  ]
 });
 
 start(g);

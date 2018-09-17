@@ -12,9 +12,7 @@ function App(game) {
   return html`
 <h1>Dominion</h1>
 <h2>Supply</h2>
-<ul>
-  ${map(game.supply, SupplyPile)}
-</ul>
+${SupplyPile(game)}
 <h2>Resources</h2>
 <div>Actions: ${game.player.resources.actions.state}</div>
 <div>Buys: ${game.player.resources.buys.state}</div>
@@ -48,14 +46,21 @@ function InertCard(c) {
     </li>`;
 }
 
-function SupplyPile(s) {
-  return html`
-    <li>
-      ${
-        s.left.state > 0 ? html`<button @click=${()=>r(current.buy(s))}>Buy</button>` : null
-      }
-      ${s.def.name.state} (${s.left.state})
-    </li>`;
+function SupplyPile(game) {
+return html`
+  <ul>
+    ${map(game.supply, (pile) => 
+      html`
+        <li>
+          ${
+            pile.left.state > 0  &&  game.player.resources.coins.state >= pile.def.cost.state  &&  game.player.resources.buys.state >= 1
+              ? html`<button @click=${()=>r(game.buy(pile))}>Buy</button>`
+              : null
+           }
+           ${pile.def.name.state} (${pile.left.state})
+        </li>
+      `)}
+  </ul>`;
 }
 
 // function List(label, state, render)
