@@ -1,13 +1,12 @@
 import {html, render} from "lit-html";
 import {map} from "microstates";
 
-var body = document.body;
 
-function _render(state) {
-  render(App(state), document.body);
+var current;
+export default function r(game) {
+  current = game;
+  render(App(game), document.body);
 }
-
-export {_render as render};
 
 function App(game) {
   return html`
@@ -24,7 +23,7 @@ function App(game) {
 <ul>
   ${map(game.player.discard, Card)}
 </ul>
-  <button @click=${()=>console.log('click')}>Hi</button>
+  <button @click=${()=>console.log(game)}>Hi</button>
 `;
 }
 
@@ -33,7 +32,13 @@ function Card(c) {
 }
 
 function SupplyPile(s) {
-  return html`<li>${s.def.name.state} (${s.left.state})`;
+  return html`
+    <li>
+      ${
+        s.left.state > 0 ? html`<button @click=${()=>r(current.buy(s))}>Buy</button>` : null
+      }
+      ${s.def.name.state} (${s.left.state})
+    </li>`;
 }
 
 // function List(label, state, render)

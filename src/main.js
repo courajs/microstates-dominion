@@ -1,11 +1,21 @@
-import {create, map} from "microstates";
-import {render} from "./ui.js";
+import {create, map, filter} from "microstates";
+import start from "./app.js";
 
+function assert(v, msg) {
+  if (!v) {
+    throw new Error(msg);
+  }
+}
 
 
 function Game() {
   this.player = Player;
   this.supply = [SupplyPile];
+}
+Game.prototype.buy = function(pile) {
+  assert(pile.left.state > 0, "Buying from empty supply pile");
+  return pile.left.decrement()
+    .player.discard.push(create(Card, {def: pile.def}));
 }
 
 function SupplyPile() {
@@ -49,10 +59,11 @@ var g = create(Game, {
   supply: [{def: copper, left: 4}]
 });
 
-render(g);
+start(g);
 
-window.Stuff = {
+Object.assign(window, {
   map,
+  filter,
   create,
   Game,
   SupplyPile,
@@ -63,4 +74,4 @@ window.Stuff = {
   silver,
   gold,
   g
-}
+});
