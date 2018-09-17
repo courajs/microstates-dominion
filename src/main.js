@@ -32,6 +32,11 @@ Game.prototype.play = function(card) {
     .player.in_play.push(card)
     .player.resources.coins.increment(card.def.value.state);
 }
+Game.prototype.draw = function(n = 1) {
+  let card = this.player.deck[0];
+  let r = removeFrom(this.player.deck, card)
+  return r.player.hand.push(card)
+}
 
 function SupplyPile() {
   this.def = CardDef;
@@ -91,7 +96,8 @@ var gold = create(CardDef, {name: "Gold", value: 3, cost: 6});
 
 var g = create(Game, {
   player: {
-    hand: [...Card.make(copper, 4), Card.make(silver)],
+    hand: [...Card.make(copper, 4), ...Card.make(silver, 1)],
+    deck: [...Card.make(copper, 3), ...Card.make(silver, 2)],
     resources: {buys: 4},
   },
   supply: [
@@ -116,5 +122,8 @@ Object.assign(window, {
   silver,
   gold,
   g,
-  r: start
+  r(game) {
+    window.g = game
+    start(game)
+  }
 });

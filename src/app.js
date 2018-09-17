@@ -18,6 +18,7 @@ ${SupplyPile(game)}
 <div>Actions: ${game.player.resources.actions.state}</div>
 <div>Buys: ${game.player.resources.buys.state}</div>
 <div>Coins: ${game.player.resources.coins.state}</div>
+<h2>Deck: ${game.player.deck.state.length}</h2>
 <h2>Hand</h2>
 <ul>
   ${map(game.player.hand, PlayableCard)}
