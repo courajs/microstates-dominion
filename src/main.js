@@ -33,9 +33,26 @@ Game.prototype.play = function(card) {
     .player.resources.coins.increment(card.def.value.state);
 }
 Game.prototype.draw = function(n = 1) {
-  let card = this.player.deck[0];
-  let r = removeFrom(this.player.deck, card)
-  return r.player.hand.push(card)
+  let r = this;
+  if (r.player.deck.state.length === 0 && r.player.discard.state.length === 0) {
+    // no cards left to draw
+    return this;
+  }
+  if (r.player.deck.state.length === 0) {
+    // shuffle discard into deck on-demand
+    r = r.shuffle();
+  }
+  // move from deck to hand
+  let card = r.player.deck[0];
+  r = removeFrom(r.player.deck, card)
+  r = r.player.hand.push(card)
+  return r
+}
+Game.prototype.shuffle = function() {
+  assert(this.player.deck.state.length === 0, "Only shuffle when you need to draw")
+  let cards = map(this.player.discard, x=>x)
+  return this.player.discard.clear()
+    .player.deck.set(cards)
 }
 
 function SupplyPile() {
@@ -97,7 +114,8 @@ var gold = create(CardDef, {name: "Gold", value: 3, cost: 6});
 var g = create(Game, {
   player: {
     hand: [...Card.make(copper, 4), ...Card.make(silver, 1)],
-    deck: [...Card.make(copper, 3), ...Card.make(silver, 2)],
+    deck: [...Card.make(copper, 1)],
+    discard: [...Card.make(silver, 1)],
     resources: {buys: 4},
   },
   supply: [
