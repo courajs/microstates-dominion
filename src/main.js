@@ -1,5 +1,9 @@
-import {create, map, filter} from "microstates";
+import {create, map, reduce, filter} from "microstates";
 import start from "./app.js";
+
+function items(a) {
+  return map(a, x=>x);
+}
 
 function assert(v, msg) {
   if (!v) {
@@ -32,20 +36,29 @@ Game.prototype.play = function(card) {
     .player.in_play.push(card)
     .player.resources.coins.increment(card.def.value.state);
 }
+Game.prototype.playAll = function() {
+  let coins = this.player.hand.state.reduce((sum,c)=>sum+c.def.value, 0);
+  let p = this.player.state;
+  return this.player.resources.coins.increment(coins)
+    .player.hand.clear()
+    .player.in_play.set(p.in_play.concat(p.hand));
+}
+
 Game.prototype.draw = function(n = 1) {
   let r = this;
-  if (r.player.deck.state.length === 0 && r.player.discard.state.length === 0) {
-    // no cards left to draw
+  let p = this.player.state;
+  if (p.deck.length === 0 && p.discard.length === 0) {
+    // no cards left to draw; do nothing
     return this;
   }
-  if (r.player.deck.state.length === 0) {
+  if (p.deck.length === 0) {
     // shuffle discard into deck on-demand
-    r = r.shuffle();
+    return this.shuffle().draw(n);
   }
   // move from deck to hand
-  let card = r.player.deck[0];
-  r = removeFrom(r.player.deck, card)
-  r = r.player.hand.push(card)
+  r = r.player.deck.shift()
+    .player.hand.set(p.hand.concat(p.deck[0]))
+
   if (n > 1) {
     return r.draw(n-1);
   } else {
@@ -54,9 +67,18 @@ Game.prototype.draw = function(n = 1) {
 }
 Game.prototype.shuffle = function() {
   assert(this.player.deck.state.length === 0, "Only shuffle when you need to draw")
-  let cards = map(this.player.discard, x=>x)
   return this.player.discard.clear()
-    .player.deck.set(cards)
+    .player.deck.set(this.player.discard)
+}
+
+Game.prototype.endTurn = function() {
+  let p = this.player.state;
+  let newDiscard = [].concat(p.discard, p.hand, p.in_play);
+  return this.player.hand.clear()
+    .player.in_play.clear()
+    .player.discard.set(newDiscard)
+    .draw(5)
+    .player.resources.set({actions:1, buys: 1})
 }
 
 function SupplyPile() {
@@ -75,7 +97,7 @@ function Player() {
   this.in_play = [Card];
 }
 Player.prototype.gain = function(def) {
-  return this.discard.push(create(Card, {def}));
+  return this.discard.push(makeCard(def));
 }
 
 function Resources() {
@@ -94,20 +116,19 @@ function Card() {
   this.def = CardDef;
   this.id = Number;
 }
-Card.make = function(def, n) {
+
+var nextId = 1;
+function makeCard(def) {
+  return create(Card, {def, id: nextId++});
+}
+function makeCards(def, n) {
   if (n) {
     var result = [];
-    for (var i = 0; i < n; i++) {
-      result.push(create(Card, {def}));
+    for (let i = 0; i < n; i++) {
+      result.push(makeCard(def));
     }
     return result;
-  } else {
-    return create(Card, {def});
   }
-}
-var nextId = 1;
-Card.prototype.initialize = function(){
-  return this.id.set(nextId++);
 }
 
 
@@ -117,10 +138,10 @@ var gold = create(CardDef, {name: "Gold", value: 3, cost: 6});
 
 var g = create(Game, {
   player: {
-    hand: [...Card.make(copper, 4), ...Card.make(silver, 1)],
-    deck: [...Card.make(copper, 1)],
-    discard: [...Card.make(silver, 1)],
-    resources: {buys: 4},
+    hand: [...makeCards(copper, 5)],
+    deck: [...makeCards(copper, 5)],
+    discard: [],
+    resources: {actions: 1, buys: 1},
   },
   supply: [
     {def: copper, left: 60},
