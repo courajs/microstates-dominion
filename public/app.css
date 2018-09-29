@@ -1,0 +1,28 @@
+#board {
+  display: grid;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: 20px;
+  grid-template:
+    "sup sup sup" 2fr
+    "res in  act" 1fr
+    "dck hnd dsc" 1fr /
+     1fr 3fr 1fr      ;
+  gap: 10px;
+}
+
+#board > div {
+  border: 2px solid black;
+  border-radius: 4px;
+}
+
+#supply { grid-area: sup; }
+#resources { grid-area: res; }
+#in-play { grid-area: in; }
+#actions { grid-area: act; }
+#deck { grid-area: dck; }
+#hand { grid-area: hnd; }
+#discard { grid-area: dsc; }

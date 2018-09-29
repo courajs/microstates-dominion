@@ -10,35 +10,41 @@ export default function r(game) {
   return game;
 }
 
+/*
+  <div id="board">
+    <div id="supply"></div>
+    <div id="resources"></div>
+    <div id="in-play"></div>
+    <div id="hand"></div>
+    <div id="deck"></div>
+    <div id="discard"></div>
+  </div>
+ */
+
 function App(game) {
   return html`
-<h1>Dominion</h1>
-<h2>Supply</h2>
-${SupplyPile(game)}
-<h2>Resources</h2>
-<div>Actions: ${game.player.resources.actions.state}</div>
-<div>Buys: ${game.player.resources.buys.state}</div>
-<div>Coins: ${game.player.resources.coins.state}</div>
-<h2>Deck: ${game.player.deck.state.length}</h2>
-<button @click=${()=>r(game.endTurn())}>End turn</button>
-<h2>Hand</h2>
-${
-  game.player.hand.state.length > 0
-  ? html`<button @click=${()=>r(game.playAll())}>Play all</button>`
-  : null
-}
-<ul>
-  ${map(game.player.hand, PlayableCard)}
-</ul>
-<h2>In play</h2>
-<ul>
-  ${map(game.player.in_play, InertCard)}
-</ul>
-<h2>Discard</h2>
-<ul>
-  ${map(game.player.discard, InertCard)}
-</ul>
-`;
+
+  <div id="board">
+    <div id="supply">${SupplyPile(game)}</div>
+    <div id="resources">
+      <div>Actions: ${game.player.resources.actions.state}</div>
+      <div>Buys: ${game.player.resources.buys.state}</div>
+      <div>Coins: ${game.player.resources.coins.state}</div>
+    </div>
+    <div id="in-play"><ul>${map(game.player.in_play, InertCard)}</ul></div>
+    <div id="actions">
+      <button @click=${()=>r(game.endTurn())}>End turn</button>
+      ${
+        game.player.hand.state.length > 0
+        ? html`<button @click=${()=>r(game.playAll())}>Play treasures</button>`
+        : null
+      }
+    </div>
+    <div id="hand"><ul>${map(game.player.hand, PlayableCard)}</ul></div>
+    <div id="deck">${game.player.deck.state.length} cards</div>
+    <div id="discard">${game.player.discard[0] ? InertCard(game.player.discard[0]) : null}</div>
+  </div>
+  `;
 }
 
 function PlayableCard(c) {
